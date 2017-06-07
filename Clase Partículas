@@ -1,0 +1,81 @@
+class Particulas {
+
+  PVector pos, pPos, vel, acc;
+  float gravedad, peso, orbita;
+
+  Particulas() {
+    pos = new PVector(random(width), random(height));
+    pPos = new PVector(pos.x, pos.y);
+    vel = new PVector(0, 0);
+    acc = new PVector(0, 0);
+
+    peso = random(1, 10);
+    gravedad = map(peso, 1, 10, .95, .85);
+    orbita = map(peso, 1, 10, .5, .05);
+  }
+
+
+
+void update(float MovX, float MovY) {
+    
+    pPos.set(pos.x, pos.y);
+    acc.set(MovX-pos.x, MovY-pos.y);
+
+    //Use normalize() instead in Java mode
+    float accMag = sqrt(sq(acc.x)+sq(acc.y));
+    acc.mult(1.0/accMag);
+    //------------------------------
+    acc.mult(ExpansionDePuntos * orbita);
+    vel.add(acc);
+    //Use limit() instead in Java mode
+    float velMag = sqrt(sq(vel.x)+sq(vel.y));
+    if(velMag>VelocidadDeExpansion) vel.mult(VelocidadDeExpansion/velMag);
+    //------------------------------
+    pos.add(vel);
+    acc.set(0, 0, 0);
+    boundaryCheck();
+  }
+
+  void update() {
+    
+    pPos.set(pos.x, pos.y);
+    
+    vel.add(acc);
+    vel.mult(gravedad);
+    pos.add(vel);
+    acc.set(0, 0);
+
+    boundaryCheck();
+  }
+
+
+void DibujarParticulas() {
+    strokeWeight(peso);
+    stroke(0, 255);
+    if(Presionar)line(pos.x, pos.y, pPos.x, pPos.y);
+    else point(pos.x, pos.y);
+  }
+  
+  
+void DibujarLineas(Particulas coPtc, float scalar) {
+    strokeWeight((peso+coPtc.peso)*.5*scalar);
+    stroke(0, 255*scalar);
+    line(pos.x, pos.y, coPtc.pos.x, coPtc.pos.y);
+  }
+
+
+void boundaryCheck() {
+    if (pos.x > width) {
+      pos.x = width;
+      vel.x *= -1;
+    } else if (pos.x < 0) {
+      pos.x = 0;
+      vel.x *= -1;
+    }
+    if (pos.y > height) {
+      vel.y *= -1;
+    } else if (pos.y < 0) {
+      vel.y *= -1;
+    }
+  }
+}
