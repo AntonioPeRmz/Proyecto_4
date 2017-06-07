@@ -1,0 +1,90 @@
+class Deslizar{
+  //VARIABLES DE LA CLASE
+  PVector Posicion, NombreBarraPos, ValorBarraPos;
+  float w, h, innerW, Valor, ValorMin, ValorMax;
+  boolean Activado;
+  String NombreBarra, ValorBarra;
+  
+  Deslizar(float x, float y, float w, float h){
+    Posicion = new PVector(x, y);
+    NombreBarraPos = new PVector(x-10, y);
+    ValorBarraPos = new PVector(x+w*.5, y);
+    this.w = w;
+    this.h = h;
+  }
+
+  
+void ConjuntoBarras(String NombreBarra){
+    this.NombreBarra = NombreBarra;
+  }
+
+  
+void ConjuntoValores(float Valor, float ValorMin, float ValorMax){
+    this.Valor = Valor;
+    this.ValorMin = ValorMin;
+    this.ValorMax = ValorMax;
+    
+    ValorBarra = str(round(Valor*100)/100);
+    
+    innerW = map(Valor, ValorMin, ValorMax, 0, w);
+  }
+
+  
+void update(){
+    innerW = constrain(mouseX-Posicion.x, 0, w);
+    Valor = map(innerW, 0, w, ValorMin, ValorMax);
+    ValorBarra = str(round(Valor*100)/100);
+  }
+
+  
+  
+//BARRAS DE MANEJO Y VELOCIDAD DE LOS PARTICULAS.
+void display(){
+    noStroke();
+    fill(0);
+    rect(Posicion.x, Posicion.y, w, h);
+    fill(255, 0, 0);
+    rect(Posicion.x, Posicion.y, innerW, h);
+    
+    fill(255);
+    rect(Posicion.x-10-textWidth(NombreBarra), Posicion.y, 10+textWidth(NombreBarra), h);
+    
+    fill(0);
+    textAlign(RIGHT, TOP);
+    text(NombreBarra, NombreBarraPos.x, NombreBarraPos.y);
+    
+    fill(255);
+    textAlign(CENTER, TOP);
+    text(ValorBarra, ValorBarraPos.x, ValorBarraPos.y);
+  }
+}
+boolean Presionar;
+
+
+void mousePressed(){
+  
+  for(int i=0; i<ListaDeslizar.size(); i++){
+    Deslizar slider = ListaDeslizar.get(i);
+    if(mouseX>slider.Posicion.x && mouseX<slider.Posicion.x+slider.w && mouseY>slider.Posicion.y && mouseY<slider.Posicion.y+slider.h){
+      slider.Activado = true;
+      return;
+    }
+  }
+  
+  Presionar = true;
+  VelocidadDeLineas = ValorUnion.Valor;
+  Rafaga = ValorRafaga.Valor;
+}
+
+
+void mouseReleased(){
+  
+  for(int i=0; i<ListaDeslizar.size(); i++){
+    Deslizar slider = ListaDeslizar.get(i);
+    slider.Activado = false;
+  }
+  
+  Presionar = false;
+  VelocidadDeLineas = 0;
+  Rafaga = 255;
+}
