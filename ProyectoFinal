@@ -1,0 +1,154 @@
+Particulas [] Puntos;
+int Pantalla;
+PImage Particulas;
+PImage Instrucciones;
+float ExpansionDePuntos = 1, VelocidadDeExpansion = 10, Lineas, VelocidadDeLineas, ConcentracionColor = 0, Rafaga = 255;
+import ddf.minim.*;
+import ddf.minim.effects.*;
+
+Minim minim;
+AudioPlayer faded;
+
+
+
+void setup() {
+  Particulas=loadImage("Particulas.png");
+  Instrucciones=loadImage("Instrucciones.png");
+  
+  size(900, 600, P2D);
+  frameRate(30); //VELOCIDAD DEL TABLERO
+  smooth(); //ATRACCION ENTRE PARTICULAS
+  textSize(15); //TAMAÑO DEL TEXTO
+  background(255); //FONDO
+  ParticulasFondo(60); //CANTIDAD DE PARTÍCULAS
+  MovimientoDeParticulas(); //COMPORTAMIENTO DE PARTÍCULAS
+  
+  minim = new Minim(this);
+  faded = minim.loadFile("faded.mp3", 2048);
+}
+
+
+void draw(){ 
+  switch(Pantalla){
+  case 0:
+  image (Particulas,0,0);
+  if (mousePressed == false){
+  }else{
+    Pantalla =1;
+  }
+  break;
+
+  case 1:
+  image (Instrucciones,0,0);
+  if (keyPressed){
+      if (key == 'p' || key == 'P'){
+    Pantalla =2;
+  }
+  }
+  break;
+
+  case 2:
+  Lineas = lerp(Lineas,VelocidadDeLineas, .02);
+  ConcentracionColor = lerp(ConcentracionColor, Rafaga, .02);
+  ExpansionDePuntos = ValorExpansion.Valor;
+  
+  DatosPuntos();
+  DatosDeslizadores();
+
+  noStroke();
+  fill(ConcentracionColor); //CAMBIO DE COLOR DEL TABLERO
+  rect(0, 0, width, height);
+
+  DibujoPuntos();
+  DibujoLineas();
+  DibujarDeslizadores();
+}
+}
+
+void keyPressed()
+{
+  if ( key == 'p' ) faded.loop();
+}
+
+void ParticulasFondo(int amt) {
+  Puntos = new Particulas[amt];
+  for (int i=0; i<Puntos.length; i++) {
+    Puntos[i] = new Particulas();
+  }
+}
+
+
+void DatosPuntos() {
+  if (Presionar) {
+    for (int i=0; i<Puntos.length; i++) {
+      Puntos[i].update(mouseX, mouseY);
+    }
+  } else {
+    for (int i=0; i<Puntos.length; i++) {
+      Puntos[i].update();
+    }
+  }
+}
+
+
+void DibujoPuntos() {
+  for (int i=0; i<Puntos.length; i++) {
+    Puntos[i].DibujarParticulas();
+  }
+}
+
+
+void DibujoLineas() {
+  for (int i=0; i<Puntos.length; i++) {
+    for (int j=i+1; j<Puntos.length; j++) {
+      float d = dist(Puntos[i].pos.x, Puntos[i].pos.y, Puntos[j].pos.x, Puntos[j].pos.y);
+      if (d<Lineas) {
+        float scalar = map(d, 0,Lineas, 1, 0);
+        Puntos[i].DibujarLineas(Puntos[j], scalar);
+      }
+    }
+  }
+}
+
+
+//DIBUJAR LAS BARRAS
+ArrayList <Deslizar> ListaDeslizar;
+Deslizar ValorRafaga, ValorUnion, ValorExpansion;
+
+void MovimientoDeParticulas(){
+  
+  ListaDeslizar = new ArrayList<Deslizar>();
+  
+  ValorRafaga = new Deslizar(100, 30, 120, 20);
+  ValorRafaga.ConjuntoBarras("FONDO");
+  ValorRafaga.ConjuntoValores(32, 6, 255);
+  ValorUnion = new Deslizar(100, 55, 120, 20);
+  ValorUnion.ConjuntoBarras("UNIÓN");
+  ValorUnion.ConjuntoValores(100, 0, 240);
+  ValorExpansion = new Deslizar(100, 80, 120, 20);
+  ValorExpansion.ConjuntoBarras("EXPANSIÓN");
+  ValorExpansion.ConjuntoValores(1, -1, 1);
+  
+  ListaDeslizar.add(ValorRafaga);
+  ListaDeslizar.add(ValorUnion);
+  ListaDeslizar.add(ValorExpansion);
+}
+
+
+void DatosDeslizadores(){
+  for(int i=0; i<ListaDeslizar.size(); i++){
+    Deslizar slider = ListaDeslizar.get(i);
+    if(slider.Activado){
+      slider.update();
+      break;
+    }
+  }
+}
+
+
+void DibujarDeslizadores(){
+  for(int i=0; i<ListaDeslizar.size(); i++){
+    Deslizar slider = ListaDeslizar.get(i);
+    slider.display();
+  }
+}
